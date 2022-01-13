@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Mapping Past Mountaineering Fatalities in the Himalayas</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<link rel="stylesheet" href="https://d19vzq90twjlae.cloudfront.net/leaflet/v0.7.7/leaflet.css" />
+<link rel="stylesheet" href="https://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.css" />
+<link href="https://fonts.googleapis.com/css2?family=Catamaran&display=swap" rel="stylesheet">
+<link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-minimap/v1.0.0/Control.MiniMap.css' rel='stylesheet' />
+<link rel="shortcut icon" type="image/icon" href="favicon.ico"/>
+    
+<style>
+  body { margin:0; padding:0; "font-family: Catamaran, sans-serif"; }
+  #map { position:absolute; top:0; bottom:0; width:100%; height: 100%; }
+h1 {position: absolute; left: 50px; top: 10px; padding: 8px 2%; margin: 0; background: rgba(0,0,60,.8); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 2px; color: whitesmoke; font-family: 'Catamaran'; font: sans-serif; font-weight: normal; font-size: 1.4em;}
+
+    
+.info {
+padding: 10px 10px;
+background: white;
+background: rgba(250,250,250,.80);
+box-shadow: 0 0 15px rgba(0,0,0,0.5);
+border-radius: 12px;
+}
+.legend {
+background-color: “black”;
+line-height: 20px;
+color: #555;
+width: auto;
+}
+.legend i {
+width: 25px;
+height: 18px;
+float: left;
+margin-right: 8px;
+opacity: 0.5;
+}    
+    
+
+        #side-panel {
+            position: absolute;
+            bottom: 0;
+            left: 1000px;
+            width: 500px;
+            height: 120px;
+            margin: 10px 10px;
+            padding: 10px 10px;
+            background: rgba(256, 256, 256, .9);
+            line-height: 15px;
+            border: 1px solid grey;
+            border-radius: 15px;
+            z-index: 800;    
+    
+    
+</style>
+    
+</head>
+<body>
+    <div id='map'></div>
+    <h1>Mapping Past Mountaineering Fatalities in the Himalayas (1950-2003)</h1> 
+    
+    
+ <section id="side-panel">
+
+     <p><span style="font-size: .8em"><span style="font-family:Catamaran, sans-serif">
+         <b>Map Developer:</b> Sydney Graff, BS in Geography (2020), University of Wisconsin-La Crosse.<br> <b>Project Advisor: </b>Dr. Gargi Chaudhuri, Geography & Earth Science, University of Wisconsin-La Crosse.<br><b>Data Source:</b> ‘The Himalayan Database’ (Hawley & Salisbury, 2014).<br><b>Description:</b><a href="./description.html"> Click here to read !</a><br><b>Acknowledgements: </b>Undergraduate Research and Creativity Grant 2019.
+    </section>
+    
+    
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://d19vzq90twjlae.cloudfront.net/leaflet/v0.7.7/leaflet.js"></script>
+<script src="./mtn_peaks.js"></script>
+<script src="./dhaul_villages.js"></script>
+<script src="./ann_villages.js"></script>
+<script src="./ann_routes.js"></script>
+<script src="./dhaul_routesss.js"></script>
+<script src="./kang_routes.js"></script>
+<script src="./kang_villages.js"></script>
+<script src="./api_routes.js"></script>
+<script src="./api_villages.js"></script>
+<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-minimap/v1.0.0/Control.MiniMap.js'></script>
+<script src="https://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.js"></script>
+<script>
+
+    var map = L.map('map', {
+        center: [28.197695, 85.318860],
+        zoom: 8,
+       // layers: [group1, group2, peaks, propcircles]
+    });
+    
+    
+   L.tileLayer('https://api.maptiler.com/maps/topo/{z}/{x}/{y}.png?key=tZnptaeI9RvKHsX18rbW', {
+            attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'}).addTo(map);
+    
+    
+
+    
+
+    
+    
+///////images/////// 
+    
+var myIcon = new L.Icon({
+     iconSize: [20, 20],
+     iconAnchor: [13, 27],
+     popupAnchor:  [1, -24],
+     iconUrl: 'peaks.png'
+ });
+    
+var vill = new L.Icon({
+     iconSize: [12, 12],
+     iconAnchor: [13, 27],
+     popupAnchor:  [1, -24],
+     iconUrl: 'villages5.png'
+ });
+    
+var route = new L.Icon({
+    iconSize: [20, 10],
+    iconAnchor: [13, 27],
+    popupAnchor:  [1, -24],
+    iconUrl: 'lines.png'
+ });   
+    
+    
+//////layers///////   
+var peaks = new L.geoJson(mtn_peaks, {onEachFeature: function(feature, featureLayer){featureLayer.bindPopup('<h4><span style="font-family:Catamaran, sans-serif">Peak Name: '+feature.properties.TITLE+'</h4><p><span style="font-family:Catamaran, sans-serif">Peak Height: '+feature.properties.Peak_Heigh+' m</p><p><span style="font-family:Catamaran, sans-serif">Number of Deaths: '+feature.properties.number_of_+'</p><p><span style="font-family:Catamaran, sans-serif">Number of Expeditions: '+feature.properties.number_of1+'</p>');}, pointToLayer: function (feature, latlng) {
+            var marker = L.marker(latlng,{icon: myIcon});
+            return marker;
+        }}).addTo(map);
+    
+        
+var dhaul_villages = new L.geoJson(dhaul_villages,{onEachFeature: function(feature, featureLayer){featureLayer.bindPopup('<p><span style="font-family:Catamaran, sans-serif">Dhaulagiri Village: '+feature.properties.Name+'</p>');}, pointToLayer: function (feature, latlng) {
+            var marker = L.marker(latlng,{icon: vill});
+            return marker;
+        }});
+       
+var dhaul_routes = new L.geoJson(dhaul_routes,{color: '#1D2038', onEachFeature: function(feature, featureLayer){featureLayer.bindPopup('<p><span style="font-family:Catamaran, sans-serif">Dhaulagiri Route</p>');}, polyToLayer: function (feature, latlng) {
+            var marker = L.marker(latlng,{icon: route});
+            return marker;
+        }});   
+
+    
+var ann_villages = new L.geoJson(ann_villages,{onEachFeature: function(feature, featureLayer){featureLayer.bindPopup('<p><span style="font-family:Catamaran, sans-serif">Annapurna Village: '+feature.properties.Name+'</p>');}, pointToLayer: function (feature, latlng) {
+            var marker = L.marker(latlng,{icon: vill});
+            return marker;
+        }});       
+    
+var ann_routes = new L.geoJson(ann_routes,{color: '#1D2038', onEachFeature: function(feature, featureLayer){featureLayer.bindPopup('<p><span style="font-family:Catamaran, sans-serif">Annapurna Route</p>');}, polyToLayer: function (feature, latlng) {
+            var marker = L.marker(latlng,{icon: route});
+            return marker;
+        }});   
+    
+var kang_routes = new L.geoJson(kang_routes,{color: '#1D2038', onEachFeature: function(feature, featureLayer){featureLayer.bindPopup('<p><span style="font-family:Catamaran, sans-serif">Kangchenjunga Route</p>');}, polyToLayer: function (feature, latlng) {
+            var marker = L.marker(latlng,{icon: route});
+            return marker;
+        }});   
+    
+ var kang_villages = new L.geoJson(kang_villages,{onEachFeature: function(feature, featureLayer){featureLayer.bindPopup('<p><span style="font-family:Catamaran, sans-serif">Kangchenjunga Village: '+feature.properties.Name+'</p>');}, pointToLayer: function (feature, latlng) {
+            var marker = L.marker(latlng,{icon: vill});
+            return marker;
+        }});
+    
+var api_routes = new L.geoJson(api_routes,{color: '#1D2038', onEachFeature: function(feature, featureLayer){featureLayer.bindPopup('<p><span style="font-family:Catamaran, sans-serif">Kangchenjunga Route</p>');}, polyToLayer: function (feature, latlng) {
+            var marker = L.marker(latlng,{icon: route});
+            return marker;
+        }});
+
+ var api_villages = new L.geoJson(api_villages,{onEachFeature: function(feature, featureLayer){featureLayer.bindPopup('<p><span style="font-family:Catamaran, sans-serif">Kangchenjunga Village: '+feature.properties.Name+'</p>');}, pointToLayer: function (feature, latlng) {
+            var marker = L.marker(latlng,{icon: vill});
+            return marker;
+        }});     
+    
+    
+//////proportional circles/////////
+    
+
+    var minValue = 1;
+    var minRadius = 2;    
+    var propcircles = new L.geoJson(mtn_peaks, {
+        pointToLayer: function(feature, latlng){
+            return new L.circleMarker(latlng, {
+                color: '#ff000000',
+                radius: calcRadius(feature.properties.number_of1),
+                opacity: 1,
+                weight: 1,
+                fillColor: '#ff000000',
+                fillOpacity: .45, 
+            }).on({                
+                    mouseover: function(e) {
+						this.openPopup();
+						this.setStyle({color: '#92010100'});
+					},
+					mouseout: function(e) {
+						this.closePopup();
+						this.setStyle({color: '#ff000000'});
+                    }
+            })
+        }
+    });
+        
+    function calcRadius(val) {        
+        return 1.0083 * Math.pow(val/minValue,.4555) * minRadius;       
+    }
+    
+  var propcircles = new L.geoJson(mtn_peaks, {onEachFeature: function(feature, featureLayer){featureLayer.bindPopup('<p><span style="font-family:Catamaran, sans-serif">Number of Expeditions: '+feature.properties.number_of1+'</p>');},
+                                              
+        pointToLayer: function(feature, latlng) {
+          return L.circleMarker(latlng, {
+              fillColor: "#920101", 
+              color: '#920101',
+              weight: 2,       
+              radius: calcRadius(feature.properties.number_of1),
+              fillOpacity: .35
+          }).on({
+                mouseover: function(e) {
+                    this.openPopup();
+                    this.setStyle({fillOpacity: .8, fillColor: '#ff0000'});
+                    
+                },
+                mouseout: function(e) {
+                    this.closePopup();
+                    this.setStyle({fillOpacity: .35, fillColor: '#920101'});  
+                }
+        });
+      }
+  });
+    
+    
+
+var group1 = L.layerGroup([dhaul_villages, kang_villages, ann_villages, api_villages]);
+        
+var group2 = L.layerGroup([dhaul_routes, kang_routes, ann_routes, api_routes]);
+    
+    
+    
+////////scalebar//////   
+L.control.scale({position: 'bottomleft', maxWidth: '150', metric: 'True'}).addTo(map); 
+    
+    
+    
+////////legend2////////
+var baseLayers = {
+    "Basemap": map,
+};
+var overlayMaps = {
+    "<img src='villages5.png' height=16 width=18 span style='font-family:Catamaran, sans-serif'> Villages": group1,
+    "<img src='trekking.png' height=6 width=18> Trekking Routes": group2,
+    "<img src='peaks.png' height=16> Himalayan Peaks": peaks,
+    "<img src='propcircles.png' height=16> Expeditions": propcircles
+  
+};
+
+var legend = new
+L.control.layers(null, overlayMaps, {collapsed: false}).addTo(map);
+
+
+    
+//////inset map//////////
+var miniMap = new L.Control.MiniMap(L.tileLayer('https://api.maptiler.com/maps/topo/{z}/{x}/{y}.png?key=tZnptaeI9RvKHsX18rbW'), {
+            toggleDisplay: true,
+            position: 'bottomleft'
+        }).addTo(map);
+    
+////// create a search box /////
+	
+
+
+	var searchControl = new L.Control.Search({
+		position:'topright',
+		layer: peaks,
+		propertyName: 'TITLE',
+		marker: false,
+		delayType: 100,
+		collapsed: false,
+		textPlaceholder: 'Search by Peak Name: e.g. Everest',   //placeholder value
+		moveToLocation: function(latlng, title, map) {
+			//var zoom = map.fitBounds( latlng.layer.getBounds() );
+			//var zoom = map.getBoundsZoom(latlng.layer.getBounds());
+  			map.setView(latlng, 15); // access the zoom
+		}
+	});
+
+	searchControl.on('search:locationfound', function(e) {
+		
+		//console.log('search:locationfound', );
+
+		//map.removeLayer(this._markerSearch)
+
+		e.layer.setStyle({fillColor: '#3f0', color: '#0f0'});
+		if(e.layer._popup)
+			e.layer.openPopup();
+
+	}).on('search:collapsed', function(e) {
+
+		peaks.eachLayer(function(layer) {	//restore feature color
+			peaks.resetStyle(layer);
+		});	
+	});
+	
+	map.addControl( searchControl );  //inizialize search control
+    
+</script>
+</body>
+</html>
